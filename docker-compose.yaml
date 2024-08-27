@@ -11,5 +11,6 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: erick17
+      MONGODB_DATABASE: voting
 volumes:
   mongo_data:
