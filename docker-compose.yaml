@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   db:
-    image: mongo:5.0
+    image: mongo:latest
     restart: unless-stopped
     container_name: mongo_db
     ports:
@@ -11,6 +11,5 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: erick17
-      MONGODB_DATABASE: voting
 volumes:
   mongo_data:
