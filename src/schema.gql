@@ -2,11 +2,13 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type UserResposeType {
-  status: Boolean!
-  name: String!
+type User {
+  username: String!
+  email: String!
+  password: String!
+  img_url: String!
 }
 
 type Query {
-  findUsers: UserResposeType!
+  findUsers: User!
 }
