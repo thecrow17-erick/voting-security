@@ -1,20 +1,13 @@
 import { Module } from '@nestjs/common';
-import { GraphQLModule } from '@nestjs/graphql';
-import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { join } from 'path';
 import { UserModule } from './user/user.module';
-import { ApolloServerPluginLandingPageLocalDefault } from 'apollo-server-core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { envConfig, envSchema } from './config';
+import { envConfig, envSchema } from './config/env';
 import { MongooseModule } from '@nestjs/mongoose';
+import { AuthModule } from './auth/auth.module';
+import { FileSystemStoredFile, NestjsFormDataModule } from 'nestjs-form-data';
 
 @Module({
   imports: [
-    GraphQLModule.forRoot<ApolloDriverConfig>({
-      driver: ApolloDriver,
-      autoSchemaFile: join(process.cwd(),'src/schema.gql'),
-      playground: false,
-    }),
     ConfigModule.forRoot({
       load:[envConfig],
       isGlobal: true,
@@ -27,7 +20,15 @@ import { MongooseModule } from '@nestjs/mongoose';
       }),
       inject:[ConfigService]
     }),
-    UserModule
+    NestjsFormDataModule.configAsync({
+      useFactory: ()=>({
+        storage: FileSystemStoredFile,
+        fileSystemStoragePath: '/tmp',
+      }),
+      isGlobal: true,
+    }),
+    UserModule,
+    AuthModule
   ],
   
   providers: [],  

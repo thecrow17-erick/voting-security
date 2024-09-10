@@ -1,7 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from '../entity';
 import { Model } from 'mongoose';
+import * as bcrypt from 'bcrypt'
+
+import { User } from '../entity';
+import { CreateUserDto } from '../dto';
 
 @Injectable()
 export class UserService {
@@ -10,13 +13,29 @@ export class UserService {
   ){}
 
 
-  async createUser(){
-    const user = await this.userModel.create({
-      email: "erick@gmail.com",
-      password: "123",
-      username: "Erick"
+  public async createUser(createUserDto:CreateUserDto): Promise<User>{
+    const findUsers = await this.userModel.find({
+      $or:[
+        {
+          username: createUserDto.username
+        },
+        {
+          email: createUserDto.email
+        }
+      ]
     })
-    return user;
+
+    if(findUsers.length){
+      throw new BadRequestException("bad request user")
+    }
+    const salts = bcrypt.genSaltSync(10);
+    const userCreate = await this.userModel.create({
+      ...createUserDto,
+      password: bcrypt.hashSync(createUserDto.password, salts),
+      img_url: createUserDto.photo?.originalName || null,
+    });
+    
+    return userCreate;
   }
 
 }
