@@ -16,7 +16,9 @@ export class User extends Document{
   password: string
 
 
-  @Prop({default: null})
+  @Prop({
+    isRequired: false
+  })
   img_url: string;
 }
 

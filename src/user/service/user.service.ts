@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt'
@@ -32,10 +32,20 @@ export class UserService {
     const userCreate = await this.userModel.create({
       ...createUserDto,
       password: bcrypt.hashSync(createUserDto.password, salts),
-      img_url: createUserDto.photo?.originalName || null,
+      img_url: createUserDto.photo?.originalName,
     });
-    
+
+
     return userCreate;
   }
 
+  public async findIdUser(_id: string): Promise<User>{
+
+    const findUser = this.userModel.findById(_id);
+
+    if(!findUser)
+      throw new NotFoundException("Usuario no encontrado")
+
+    return findUser;
+  }
 }

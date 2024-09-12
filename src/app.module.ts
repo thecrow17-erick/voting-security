@@ -5,6 +5,7 @@ import { envConfig, envSchema } from './config/env';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { FileSystemStoredFile, NestjsFormDataModule } from 'nestjs-form-data';
+import { TenantModule } from './tenant/tenant.module';
 
 @Module({
   imports: [
@@ -28,7 +29,8 @@ import { FileSystemStoredFile, NestjsFormDataModule } from 'nestjs-form-data';
       isGlobal: true,
     }),
     UserModule,
-    AuthModule
+    AuthModule,
+    TenantModule
   ],
   
   providers: [],  
