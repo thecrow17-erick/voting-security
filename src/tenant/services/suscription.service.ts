@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Stripe from "stripe"
 import { InjectModel } from '@nestjs/mongoose';
@@ -71,7 +71,7 @@ export class SuscriptionService {
   }
 
 
-  private async payment (line_items: Stripe.Checkout.SessionCreateParams.LineItem[], metadata: Stripe.Metadata) {
+  private async payment (line_items: Stripe.Checkout.SessionCreateParams.LineItem[], metadata: Stripe.Metadata): Promise<Stripe.Response<Stripe.Checkout.Session>> {
     const pago = await this.stripe.checkout.sessions.create({
         line_items: line_items,
         mode: 'payment',
@@ -93,7 +93,7 @@ export class SuscriptionService {
         name: body.name,
         number_voting: +body.number_voting
       };
-      console.log(data);
+
       const findTenant = await this.tenantService.findOrTenant([
         {
           name: data.name
@@ -105,17 +105,21 @@ export class SuscriptionService {
       if(findTenant.length)
         throw new BadRequestException("Tenant ya en uso");
 
+      const findUser = this.userService.findIdUser(data.userId);
+      if(!findUser)
+        throw new NotFoundException("Usuario no encontrado");
+
       const createTenant = await this.tenantService.createTenant({
         limit_voting: data.number_voting,
         name: data.name,
         plan: data.plan,
         subdomain: data.domain
-      });
+      },session);
 
       await this.tenantService.createMemberTenant({
         tenantId: String(createTenant._id),
         userId: data.userId,
-      }, "owner");
+      }, "owner", session);
       await session.commitTransaction();
       session.endSession();
       return createTenant;
@@ -124,6 +128,9 @@ export class SuscriptionService {
       session.endSession();
       if(err instanceof BadRequestException)
         throw err
+
+      if(err instanceof NotFoundException)
+        throw err;
 
       throw new InternalServerErrorException(`server error ${err}`)
     }

@@ -1,7 +1,7 @@
 import { BadRequestException, Body, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Configuration, MemberTenant, Tenant } from '../entity';
-import { FilterQuery, Model } from 'mongoose';
+import { ClientSession, FilterQuery, Model } from 'mongoose';
 import { ICreateMember, ICreateTenant } from '../interface';
 import { Plan } from 'src/constant';
 
@@ -14,7 +14,7 @@ export class TenantService {
   ){}
 
 
-  public async createTenant(body: ICreateTenant): Promise<Tenant>{
+  public async createTenant(body: ICreateTenant,session:ClientSession): Promise<Tenant>{
     const findTenant = await this.findOrTenant([
         {
           name: body.name
@@ -36,6 +36,8 @@ export class TenantService {
         limit_voting: body.limit_voting,
         document_recognition: (body.plan === Plan.Basic) ? false: true,
         firewall:  (body.plan === Plan.Basic) ? false: true,
+      },{
+        session
       })
     })
     return tenantCreate;
@@ -49,7 +51,7 @@ export class TenantService {
     return findTenant;
   }
 
-  public async createMemberTenant(createMember: ICreateMember, role: string="member"): Promise<MemberTenant>{
+  public async createMemberTenant(createMember: ICreateMember, role: string="member",session: ClientSession): Promise<MemberTenant[]>{
     const findMember = await this.findAndMember(createMember);
 
     if(findMember)
@@ -58,8 +60,11 @@ export class TenantService {
     const createMembers = await this.memberModel.create({
       user: createMember.userId,
       tenant: createMember.tenantId,
-      role
-    })
+      role,
+    },{
+      session
+    });
+
     return createMembers;
   }
 
