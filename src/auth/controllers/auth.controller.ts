@@ -12,7 +12,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   public async signInController(@Body() body: SignInDto){
     const statusCode = HttpStatus.OK;
-    const signIn = this.authService.SignIn(body);
+    const signIn = await  this.authService.SignIn(body);
     return{
       statusCode,
       message: "loggeado correctamente",

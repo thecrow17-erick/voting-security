@@ -32,8 +32,6 @@ export class TokenAuthGuard implements CanActivate {
       throw new UnauthorizedException("user no encontrado")
 
     req.userId = findUser._id as string;
-
-    console.log(req.userId);
     return true;
   }
 }

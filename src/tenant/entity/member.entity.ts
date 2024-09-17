@@ -20,6 +20,9 @@ export class MemberTenant extends Document{
     ref: 'User'    
   })
   user: User
+
+  @Prop()
+  role:  string;
 }
 
 

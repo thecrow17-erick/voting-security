@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Document, Types ,Schema as MoongoseSchema} from "mongoose";
+import { Document} from "mongoose";
+import { Configuration, configurationSchema } from "./configuration.entity";
 
 
 
@@ -19,6 +20,11 @@ export class Tenant extends Document{
     isRequired: false
   })
   logo_url: string;
+
+  @Prop({
+    type: configurationSchema, required:false
+  })
+  configuration: Configuration
 
 }
 
