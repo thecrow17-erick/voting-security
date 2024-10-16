@@ -108,26 +108,52 @@ export class PartyService {
   }
 
   // Actualizar un partido por su ID,
-  async update(id: string, updatePartyDto: UpdatePartyDto): Promise<Party> {
-    // Validar
-    const exists = await this.partyExists(
-      updatePartyDto.name_party,
-      updatePartyDto.sigla_party,
-    );
-    if (exists) {
-      throw new ConflictException(
-        'Another party with the same name or sigla already exists',
-      );
-    }
-
-    const updatedParty = await this.partyModel
-      .findByIdAndUpdate(id, updatePartyDto, { new: true })
-      .exec();
-    if (!updatedParty) {
+  async update(
+    id: string,
+    updatePartyDto: UpdatePartyDto,
+    file?: Express.Multer.File,
+  ): Promise<Party> {
+    // Verificar si el partido existe
+    const party = await this.partyModel.findById(id);
+    if (!party) {
       throw new NotFoundException(`Party with ID ${id} not found`);
     }
-    return updatedParty;
+
+    if (file) {
+      if (party.logo_party) {
+        const publicId = this.extractPublicIdFromUrl(party.logo_party);
+        await this.cloudinaryService.deleteImage(publicId);
+      }
+
+      const uploadResult = await this.cloudinaryService.uploadFile(file);
+      updatePartyDto.logo_party = uploadResult.secureUrl;
+    }
+
+    await party.updateOne(updatePartyDto, { new: true }).exec();
+
+    return this.partyModel.findById(id);
   }
+
+  // async update(id: string, updatePartyDto: UpdatePartyDto): Promise<Party> {
+  //   // Validar
+  //   const exists = await this.partyExists(
+  //     updatePartyDto.name_party,
+  //     updatePartyDto.sigla_party,
+  //   );
+  //   if (exists) {
+  //     throw new ConflictException(
+  //       'Another party with the same name or sigla already exists',
+  //     );
+  //   }
+
+  //   const updatedParty = await this.partyModel
+  //     .findByIdAndUpdate(id, updatePartyDto, { new: true })
+  //     .exec();
+  //   if (!updatedParty) {
+  //     throw new NotFoundException(`Party with ID ${id} not found`);
+  //   }
+  //   return updatedParty;
+  // }
 
   // Eliminar un partido por su ID
   async remove(id: string): Promise<Party> {
@@ -142,11 +168,21 @@ export class PartyService {
   }
 
   // Función para verificar si el partido existe
-  async partyExists(name_party: string, sigla_party: string): Promise<boolean> {
+  private async partyExists(
+    name_party: string,
+    sigla_party: string,
+  ): Promise<boolean> {
     const existingParty = await this.partyModel.findOne({
       $or: [{ name_party }, { sigla_party }],
     });
 
     return !!existingParty;
+  }
+
+  // Función auxiliar para extraer el public_id de la URL de Cloudinary
+  private extractPublicIdFromUrl(url: string): string {
+    const parts = url.split('/');
+    const filenameWithExtension = parts[parts.length - 1];
+    return filenameWithExtension.split('.')[0];
   }
 }

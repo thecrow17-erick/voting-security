@@ -27,11 +27,6 @@ export class PartyController {
     return this.partyService.create(createPartyDto, file);
   }
 
-  // @Post()
-  // create(@Body() createPartyDto: CreatePartyDto) {
-  //   return this.partyService.create(createPartyDto);
-  // }
-
   @Get()
   findAll() {
     return this.partyService.findAll();
@@ -43,9 +38,19 @@ export class PartyController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePartyDto: UpdatePartyDto) {
-    return this.partyService.update(id, updatePartyDto);
+  @UseInterceptors(FileInterceptor('logo_party'))
+  async updateParty(
+    @Param('id') id: string,
+    @Body() updatePartyDto: UpdatePartyDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    return this.partyService.update(id, updatePartyDto, file);
   }
+
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() updatePartyDto: UpdatePartyDto) {
+  //   return this.partyService.update(id, updatePartyDto);
+  // }
 
   @Delete(':id')
   remove(@Param('id', ParseMongoIdPipe) id: string) {
