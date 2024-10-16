@@ -6,23 +6,26 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { FileSystemStoredFile, NestjsFormDataModule } from 'nestjs-form-data';
 import { TenantModule } from './tenant/tenant.module';
+import { PartyModule } from './party/party.module';
+import { CommonModule } from './common/common.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      load:[envConfig],
+      load: [envConfig],
       isGlobal: true,
-      validationSchema: envSchema
+      validationSchema: envSchema,
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory:(config: ConfigService )=> ({
-        uri: config.get<string>('database_url')  
+      useFactory: (config: ConfigService) => ({
+        uri: config.get<string>('database_url'),
       }),
-      inject:[ConfigService]
+      inject: [ConfigService],
     }),
     NestjsFormDataModule.configAsync({
-      useFactory: ()=>({
+      useFactory: () => ({
         storage: FileSystemStoredFile,
         fileSystemStoragePath: '/tmp',
       }),
@@ -30,9 +33,12 @@ import { TenantModule } from './tenant/tenant.module';
     }),
     UserModule,
     AuthModule,
-    TenantModule
+    TenantModule,
+    PartyModule,
+    CommonModule,
+    CloudinaryModule,
   ],
-  
-  providers: [],  
+
+  providers: [],
 })
 export class AppModule {}
