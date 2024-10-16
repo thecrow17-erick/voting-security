@@ -47,11 +47,6 @@ export class PartyController {
     return this.partyService.update(id, updatePartyDto, file);
   }
 
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updatePartyDto: UpdatePartyDto) {
-  //   return this.partyService.update(id, updatePartyDto);
-  // }
-
   @Delete(':id')
   remove(@Param('id', ParseMongoIdPipe) id: string) {
     return this.partyService.remove(id);

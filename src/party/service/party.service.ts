@@ -49,28 +49,6 @@ export class PartyService {
     }
   }
 
-  // async create(createPartyDto: CreatePartyDto): Promise<Party> {
-  //   {
-  //     // Usar la función partyExists antes de crear el partido
-  //     const exists = await this.partyExists(
-  //       createPartyDto.name_party,
-  //       createPartyDto.sigla_party,
-  //     );
-  //     if (exists) {
-  //       throw new ConflictException(
-  //         'Party with the same name or sigla already exists',
-  //       );
-  //     }
-
-  //     try {
-  //       const newParty = new this.partyModel(createPartyDto);
-  //       return newParty.save();
-  //     } catch (error) {
-  //       this.handleExceptions(error);
-  //     }
-  //   }
-  // }
-
   // Obtener todos los partidos
   async findAll(): Promise<Party[]> {
     return this.partyModel.find().exec();
@@ -133,27 +111,6 @@ export class PartyService {
 
     return this.partyModel.findById(id);
   }
-
-  // async update(id: string, updatePartyDto: UpdatePartyDto): Promise<Party> {
-  //   // Validar
-  //   const exists = await this.partyExists(
-  //     updatePartyDto.name_party,
-  //     updatePartyDto.sigla_party,
-  //   );
-  //   if (exists) {
-  //     throw new ConflictException(
-  //       'Another party with the same name or sigla already exists',
-  //     );
-  //   }
-
-  //   const updatedParty = await this.partyModel
-  //     .findByIdAndUpdate(id, updatePartyDto, { new: true })
-  //     .exec();
-  //   if (!updatedParty) {
-  //     throw new NotFoundException(`Party with ID ${id} not found`);
-  //   }
-  //   return updatedParty;
-  // }
 
   // Eliminar un partido por su ID
   async remove(id: string): Promise<Party> {
