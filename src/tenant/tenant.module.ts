@@ -33,6 +33,9 @@ import { UserModule } from 'src/user/user.module';
     UserModule,
     AuthModule
   ],
+  exports: [
+    TenantService
+  ],
   providers: [SuscriptionService, TenantService],
   controllers: [SuscriptionController]
 })

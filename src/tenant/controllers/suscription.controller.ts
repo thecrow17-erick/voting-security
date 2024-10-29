@@ -32,7 +32,6 @@ export class SuscriptionController {
   @HttpCode(HttpStatus.CREATED)
   public async suscriptionWebhook(@Body() body:Stripe.CheckoutSessionCompletedEvent){
     const statusCode = HttpStatus.CREATED;
-    console.log(body);
     const suscription = await this.suscriptionService.webhookPayment(body.data.object.metadata);
     return {
       statusCode,

@@ -1,8 +1,7 @@
 import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Stripe from "stripe"
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Connection } from 'mongoose';
 
 
 import { CreateTenantDto } from '../dto';
@@ -10,6 +9,7 @@ import { TenantService } from './tenant.service';
 import { UserService } from 'src/user/service';
 import { Tenant } from '../entity';
 import { Plan } from 'src/constant';
+import { InjectConnection } from '@nestjs/mongoose';
 
 @Injectable()
 export class SuscriptionService {
@@ -19,7 +19,7 @@ export class SuscriptionService {
     private readonly configService: ConfigService,
     private readonly tenantService: TenantService,
     private readonly userService: UserService,
-    @InjectModel(Tenant.name) private tenantModel: Model<Tenant>
+    @InjectConnection() private readonly connection: Connection,
   ){
     this.stripe = new Stripe(this.configService.get<string>("stripe_key_api"))
   }
@@ -83,7 +83,7 @@ export class SuscriptionService {
   }
 
   public async webhookPayment(body: Stripe.Metadata): Promise<Tenant>{
-    const session = await this.tenantModel.db.startSession();
+    const session = await this.connection.startSession();
     session.startTransaction();
     try {
       const data = {
@@ -114,18 +114,19 @@ export class SuscriptionService {
         name: data.name,
         plan: data.plan,
         subdomain: data.domain
-      },session);
+      });
 
       await this.tenantService.createMemberTenant({
         tenantId: String(createTenant._id),
         userId: data.userId,
-      }, "owner", session);
+      }, "owner");
       await session.commitTransaction();
       session.endSession();
       return createTenant;
     } catch (err) {
       await session.abortTransaction();
       session.endSession();
+      console.log(err);
       if(err instanceof BadRequestException)
         throw err
 

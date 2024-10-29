@@ -6,6 +6,9 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { FileSystemStoredFile, NestjsFormDataModule } from 'nestjs-form-data';
 import { TenantModule } from './tenant/tenant.module';
+import { CommonModule } from './common/common.module';
+import { CandidateModule } from './candidate/candidate.module';
+import { MatchModule } from './match/match.module';
 
 @Module({
   imports: [
@@ -30,7 +33,10 @@ import { TenantModule } from './tenant/tenant.module';
     }),
     UserModule,
     AuthModule,
-    TenantModule
+    TenantModule,
+    CommonModule,
+    CandidateModule,
+    MatchModule
   ],
   
   providers: [],  

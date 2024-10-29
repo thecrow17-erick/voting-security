@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { User, userSchema } from 'src/user/entity';
 import { AuthController } from './controllers';
 import { UserModule } from 'src/user/user.module';
+import { TenantModule } from 'src/tenant/tenant.module';
 
 @Module({
   providers: [AuthService],
@@ -16,7 +17,8 @@ import { UserModule } from 'src/user/user.module';
         schema: userSchema
       }
     ]),
-    UserModule
+    UserModule,
+    TenantModule
   ],
   exports: [
     AuthService
